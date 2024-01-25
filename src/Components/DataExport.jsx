@@ -6,14 +6,14 @@ const DataExport = () => {
   const [endDate, setEndDate] = useState('');
 
   const handleExport = () => {
-    // Assurez-vous que les dates sont au format ISO
+    // Assurance que les dates sont au format ISO
     const formattedStartDate = new Date(startDate).toISOString();
     const formattedEndDate = new Date(endDate).toISOString();
 
-    // Construisez l'URL avec les dates formatées
+    // Construction de l'URL avec les dates formatées
     const exportUrl = `http://127.0.0.1:8000/export/csv/?start_time=${formattedStartDate}&end_time=${formattedEndDate}`;
 
-    // Ouvrez une nouvelle fenêtre avec l'URL pour télécharger le fichier CSV
+    // Ouverture d'une nouvelle fenêtre avec l'URL pour télécharger le fichier CSV
     window.open(exportUrl, '_blank');
   };
 

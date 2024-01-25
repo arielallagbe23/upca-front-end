@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import './Calculator.css';
 
-// Définition du composant Calculator
+
 const Calculator = () => {
   const [expression, setExpression] = useState('');
   const [result, setResult] = useState('');
   const [history, setHistory] = useState([]);
 
+
   const handleButtonClick = (value) => {
     setExpression((prevExpression) => prevExpression + value);
   };
 
-  // Gestionnaire de clic pour le bouton "espace"
   const handleButtonClick2 = (value) => {
     if (value === 'space') {
       setExpression((prevExpression) => prevExpression + ' ');
@@ -20,22 +20,22 @@ const Calculator = () => {
     }
   };
 
-  // Gestionnaire de clic pour effacer le dernier caractère de l'expression
   const handleClear = () => {
     setExpression((prevExpression) =>
       prevExpression.length > 0 ? prevExpression.slice(0, -1) : prevExpression
     );
   };
   
-  // Gestionnaire de clic pour effacer tout (expression, résultat, historique)
   const handleClearAll = () => {
-    setExpression('');
-    setResult('');
-    setHistory([]);
-    // Logique supplémentaire pour effacer d'autres états si nécessaire
+    setExpression(''); // Clear the expression
+    setResult(''); // Clear the result
+    // Additional logic to clear any other state if needed
   };
   
-  // Gestionnaire de clic pour effectuer le calcul et enregistrer dans l'historique
+  const handleTogglePower = () => {
+    // Toggle the power state, additional logic if needed
+  };
+
   const handleCalculate = () => {
     fetch('http://127.0.0.1:8000/calculate/', {
       method: 'POST',
@@ -55,12 +55,13 @@ const Calculator = () => {
       });
   };
   
+
   const [pagination, setPagination] = useState({
     currentPage: 1,
     pageSize: 6,
   });
 
-  // Utilisation de useEffect pour récupérer les données d'historique depuis le backend
+  // Mettez à jour votre appel à l'API dans useEffect
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch(`http://127.0.0.1:8000/get_all_data?skip=${(pagination.currentPage - 1) * pagination.pageSize}&limit=${pagination.pageSize}`);
@@ -71,7 +72,7 @@ const Calculator = () => {
     fetchData();
   }, [pagination]);
   
-  // Gestionnaires d'événements pour changer de page
+  // Ajoutez des gestionnaires d'événements pour gérer les changements de page
   const handleNextPage = () => {
     setPagination((prevPagination) => ({
       ...prevPagination,
@@ -85,47 +86,84 @@ const Calculator = () => {
       currentPage: Math.max(1, prevPagination.currentPage - 1),
     }));
   };
+  
 
-  // Retourner la structure JSX du composant
   return (
+
     <div className="grand-div">
+
       <div className="calculator-container">
-        <div className="calculator">
-          {/* Zone de saisie pour l'expression */}
-          <input
-            type="text"
-            placeholder="Enter expression"
-            value={expression}
-            onChange={(e) => setExpression(e.target.value)}
-          />
 
-          {/* Affichage du résultat */}
-          {result && <p>Result: {result}</p>}
+      <div className="calculator">
 
-          {/* Boutons de la calculatrice */}
-          <div className="calculator-buttons">
-            <div className="button-row">
-              {/* ... (Boucles pour générer les boutons) */}
+        <input
+          type="text"
+          placeholder="Enter expression"
+          value={expression}
+          onChange={(e) => setExpression(e.target.value)}
+        />
+
+        {result && <p>Result: {result}</p>}
+
+        <div className="calculator-buttons">
+          <div className="button-row">
+            <div className="first-row">
+              {[7, 8, 9, '/'].map((value) => (
+                <button key={value} onClick={() => handleButtonClick(value)}>
+                  {value}
+                </button>
+              ))}
             </div>
-            <div className="button-row-2">
-              {/* Boutons spéciaux (C, AC, espace, =) */}
+            <div className="first-row">
+              {[4, 5, 6, '*'].map((value) => (
+                <button key={value} onClick={() => handleButtonClick(value)}>
+                  {value}
+                </button>
+              ))}
+            </div>
+            <div className="first-row">
+              {[1, 2, 3, '-'].map((value) => (
+                <button key={value} onClick={() => handleButtonClick(value)}>
+                  {value}
+                </button>
+              ))}
+            </div>
+            <div className="first-row">
+            <button onClick={handleClear} className="special-button">C</button>
+              {[0, '.', '+'].map((value) => (
+                <button key={value} onClick={() => handleButtonClick(value)}>
+                  {value}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="button-row-2">
+            
               <button onClick={handleClearAll} className="special-button">AC</button>
               <button onClick={() => handleButtonClick2('space')} className="special-button">
                 _
               </button>
               <button onClick={handleCalculate} className="equals-button">=</button>
-            </div>
+          
           </div>
+
         </div>
+
       </div>
 
-      {/* Tableau des calculs avec pagination */}
-      <div className="table-calcul-container">
-        <div className="table-calculs">
-          <table>
-            {/* ... (En-tête du tableau) */}
+      </div>
+
+
+    <div className="table-calcul-container">
+      <div className="table-calculs">
+        <table>
+            <thead>
+              <tr>
+                <th>Expression</th>
+                <th>Result</th>    
+              </tr>
+            </thead>
             <tbody>
-              {/* Boucle pour afficher les données de l'historique */}
               {history.map((item) => (
                 <tr key={item.id}>
                   <td>{item.expression}</td>
@@ -134,16 +172,18 @@ const Calculator = () => {
               ))}
             </tbody>
           </table>
-        </div>
-        {/* Boutons de pagination */}
-        <div className="pagination-buttons">
-          <button onClick={handlePrevPage} disabled={pagination.currentPage === 1}>{"\u2190"}</button>
-          <button onClick={handleNextPage}>{"\u2192"}</button>
-        </div>
+      </div>
+      <div className="pagination-buttons">
+        <button onClick={handlePrevPage} disabled={pagination.currentPage === 1}>{"\u2190"}</button>
+        <button onClick={handleNextPage}>{"\u2192"}</button>
       </div>
     </div>
+
+
+    </div>
+
+    
   );
 };
 
-// Exportation du composant Calculator pour pouvoir l'utiliser ailleurs dans l'application
 export default Calculator;

@@ -13,6 +13,8 @@
     padding: 5px;
     margin-right: auto;
     margin-left: 2px;
+    font-weight: bolder;
+    color: #073763;
 }
 
 
@@ -43,6 +45,7 @@
     border-radius: 20px;
     height: 40px;
     width: 112px;
+    border: 5px solid #073763;
 }
 
 .title

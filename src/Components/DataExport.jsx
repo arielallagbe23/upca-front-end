@@ -1,28 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import "./DataExport.css";
 
 const DataExport = () => {
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const handleExport = () => {
-    // Assurance que les dates sont au format ISO
     const formattedStartDate = new Date(startDate).toISOString();
     const formattedEndDate = new Date(endDate).toISOString();
 
-    // Construction de l'URL avec les dates formatées
     const exportUrl = `http://127.0.0.1:8000/export/csv/?start_time=${formattedStartDate}&end_time=${formattedEndDate}`;
 
-    // Ouverture d'une nouvelle fenêtre avec l'URL pour télécharger le fichier CSV
-    window.open(exportUrl, '_blank');
+    window.open(exportUrl, "_blank");
   };
 
   return (
     <div className="form-data-export">
+      <div className="title">Export Calcul</div>
 
-    <div className="title">Export Calcul</div>
-
-      <label htmlFor="startDate">Start Date:</label>
+      <label htmlFor="startDate">Start Date</label>
       <input
         type="datetime-local"
         id="startDate"
@@ -30,7 +26,7 @@ const DataExport = () => {
         onChange={(e) => setStartDate(e.target.value)}
       />
 
-      <label htmlFor="endDate">End Date:</label>
+      <label htmlFor="endDate">End Date</label>
       <input
         type="datetime-local"
         id="endDate"

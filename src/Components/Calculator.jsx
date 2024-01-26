@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BarLoader } from "react-spinners";
 import './Calculator.css';
 
 
@@ -6,6 +7,8 @@ const Calculator = () => {
   const [expression, setExpression] = useState('');
   const [result, setResult] = useState('');
   const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+
 
 
   const handleButtonClick = (value) => {
@@ -27,16 +30,13 @@ const Calculator = () => {
   };
   
   const handleClearAll = () => {
-    setExpression(''); // Clear the expression
-    setResult(''); // Clear the result
-    // Additional logic to clear any other state if needed
-  };
-  
-  const handleTogglePower = () => {
-    // Toggle the power state, additional logic if needed
+    setExpression(''); 
+    setResult(''); 
   };
 
   const handleCalculate = () => {
+    setLoading(true);
+
     fetch('http://127.0.0.1:8000/calculate/', {
       method: 'POST',
       headers: {
@@ -46,12 +46,15 @@ const Calculator = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setResult(data.result.toString());
-        // Ajouter la nouvelle entrée au début de l'array history
-        setHistory((prevHistory) => [data, ...prevHistory]);
+          setResult(data.result.toString());
+          setHistory((prevHistory) => [data, ...prevHistory]);
+          setLoading(false);
       })
       .catch((error) => {
         console.error('Error:', error);
+      })
+      .finally(() => {
+        setLoading(true);
       });
   };
   
@@ -61,7 +64,6 @@ const Calculator = () => {
     pageSize: 6,
   });
 
-  // Mettez à jour votre appel à l'API dans useEffect
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch(`http://127.0.0.1:8000/get_all_data?skip=${(pagination.currentPage - 1) * pagination.pageSize}&limit=${pagination.pageSize}`);
@@ -72,7 +74,6 @@ const Calculator = () => {
     fetchData();
   }, [pagination]);
   
-  // Ajoutez des gestionnaires d'événements pour gérer les changements de page
   const handleNextPage = () => {
     setPagination((prevPagination) => ({
       ...prevPagination,
@@ -154,9 +155,10 @@ const Calculator = () => {
       </div>
 
 
-    <div className="table-calcul-container">
-      <div className="table-calculs">
-        <table>
+      <div className="table-calcul-container">
+        {loading && <BarLoader color={"#36D7B7"} loading={loading} height={4} />}
+        <div className="table-calculs">
+          <table>
             <thead>
               <tr>
                 <th>Expression</th>

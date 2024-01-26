@@ -38,6 +38,7 @@
 {
     width: 35px;
     border-radius: 10px;
+    border: 2px solid #073763;
 }
 
 .first-row button 

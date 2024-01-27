@@ -7,6 +7,8 @@ const Calculator = () => {
   const [result, setResult] = useState("");
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
 
   const handleButtonClick = (value) => {
     setExpression((prevExpression) => prevExpression + value);
@@ -33,7 +35,7 @@ const Calculator = () => {
 
   const handleCalculate = () => {
     setLoading(true);
-
+  
     fetch("http://127.0.0.1:8000/calculate/", {
       method: "POST",
       headers: {
@@ -41,22 +43,34 @@ const Calculator = () => {
       },
       body: JSON.stringify({ expression }),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then((data) => {
-        setResult(data.result.toString());
-        fetchData();
+        if (data.error) {
+          setError("Impossible de diviser par zéro !");
+          setResult("");
+        } else {
+          setResult(data.result.toString());
+          fetchData();
+        }
       })
       .catch((error) => {
-        console.error("Error:", error);
-        setLoading(false);
+        console.error("Error:", error.message);
+        setError("Une erreur inattendue s'est produite.");
       })
       .finally(() => {
         setTimeout(() => {
           setLoading(false);
+          setError(null);
         }, 3000);
       });
   };
-
+  
+  
   const [pagination, setPagination] = useState({
     currentPage: 1,
     pageSize: 6,
@@ -70,8 +84,10 @@ const Calculator = () => {
         `http://127.0.0.1:8000/get_all_data?skip=${(pagination.currentPage - 1) * pagination.pageSize}&limit=${pagination.pageSize}`
       );
       const data = await response.json();
+      console.log("Data:", data);
       setTimeout(() => {
         setHistory(data);
+        console.log("History:", data);
         setLoading(false);
       }, 3000);
     } catch (error) {
@@ -106,8 +122,12 @@ const Calculator = () => {
             type="text"
             placeholder="Enter expression"
             value={expression}
-            onChange={(e) => setExpression(e.target.value)}
+            onChange={(e) => {
+              setExpression(e.target.value);
+              setError(null); 
+            }}
           />
+          {error && <p style={{ color: "red" }}>{error}</p>}
 
           {result && <p>Result: {result}</p>}
 
@@ -173,7 +193,7 @@ const Calculator = () => {
               </tr>
             </thead>
             <tbody>
-              {loading && (
+              {loading ? (
                 <tr className="loading-row">
                   {[...Array(2)].map((_, index) => (
                     <td key={index} className="loading-cell" colSpan="">
@@ -189,7 +209,14 @@ const Calculator = () => {
                     </td>
                   ))}
                 </tr>
+              ) : (
+                history.length === 0 && (
+                  <tr className="no-data-row">
+                    <td colSpan="2">Aucune donnée disponible pour le moment</td>
+                  </tr>
+                )
               )}
+
               {!loading &&
                 history.map((item) => (
                   <tr key={item.id}>
